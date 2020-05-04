@@ -6,7 +6,7 @@ function TPD_PriorityMap_Run
     param.OBS_DIST = 70;                  % [cm] % Martin's setting
     param.stimElev = 0;                   % [arcmin] (-) upward, (+) downward
     param.isISFix = logical(1);           % fixation dot in isi frame
-    param.stimDursToBeUsedFrms = [30];    % [frames] sci.hz = 60Hz % default 12: 200ms
+    param.stimDursToBeUsedFrms = [6];    % [frames] sci.hz = 60Hz % default 12: 200ms
     param.isiDursToBeUsedFrms  = [12];    % [frames] sci.hz = 60Hz % default 12: 200ms
     
     % GUI: get user inputs
@@ -29,7 +29,7 @@ function TPD_PriorityMap_Run
     switch param.cond
         case 'main_1disk_nEmptyBetween'            
             param.nEmptyBetween = [2,4,6,8];   % the num of empty disks in between cue-probe stim (should be even number)
-            param.stimDursToBeUsedFrms = [60];    % [frames] sci.hz = 60Hz 
+            param.stimDursToBeUsedFrms = [6];    % [frames] sci.hz = 60Hz 
             param.isiDursToBeUsedFrms  = [12];    % [frames] sci.hz = 60Hz 
             param.condNmPostfix = '_varyingNbetweenEmpties'; % to specify data filename % should be cleared in this script
             % param.barColor, param.barWidth, etc ...
