@@ -121,7 +121,7 @@ try
     % Screen info
     % Present stimuli on the main screen, where using multiple screens
     screens = Screen('Screens');
-    screenNumber = min(screens);
+    screenNumber = 1;
     sci = Screen('Resolution',screenNumber,[],[],pp.freqHz); %get screen info
     sci.gamma = 1;             			% set to 1 to load linear gamma table using lpsy.setGammaTab ; %For use with lpsytb function: Scrn.gammaCalibCoeff = mean(str2num(sysInfo.colorcalibration.gamma)); % Desired gamma calibration coefficient 
 	sci.gammaMode = 'grey';   			% if 'grey', lpsy.setGammaTab programs the gamma table with identical values for the R, G, and B channel
@@ -800,7 +800,7 @@ function drawInnerStim(innerStimType,w,iStimPres,isLeftPresent,innerStimPos,nDis
             end 
             if isLeftPresent % Stimuli are presented left
                 if pp.nDisks>=3
-                    [minSmoothLineWidth, maxSmoothLineWidth, minAliasedLineWidth, maxAliasedLineWidth] = Screen('DrawLines',w,innerStimPos.leftDisk(:,:,iStimPresFrame),pp.barWidthPx,pp.barColor,[0 0], 1); %  Screen(‘DrawLines’, windowPtr, xy [,width=2] [,colors] [,center] [,smooth=2][,lenient]) % Bars in the Left disk % -nEmptyBefore because iStimPres is already (nEmptyBefore) when the loop is read for the first time; +iStimPres to advance the dot position after every stimulus presentation;
+                    [minSmoothLineWidth, maxSmoothLineWidth, minAliasedLineWidth, maxAliasedLineWidth] = Screen('DrawLines',w,innerStimPos.leftDisk(:,:,iStimPresFrame),pp.barWidthPx,pp.barColor,[0 0], 1); %  Screen(Â‘DrawLinesÂ’, windowPtr, xy [,width=2] [,colors] [,center] [,smooth=2][,lenient]) % Bars in the Left disk % -nEmptyBefore because iStimPres is already (nEmptyBefore) when the loop is read for the first time; +iStimPres to advance the dot position after every stimulus presentation;
                 end
                 [minSmoothLineWidth, maxSmoothLineWidth, minAliasedLineWidth, maxAliasedLineWidth] = Screen('DrawLines',w,innerStimPos.middleDisk(:,:,iStimPresFrame),pp.barWidthPx,pp.barColor,[0 0], 1); % Bars in the middle disk
                 if pp.nDisks>=2
@@ -819,7 +819,7 @@ function drawInnerStim(innerStimType,w,iStimPres,isLeftPresent,innerStimPos,nDis
          case 'barMask'
             if isLeftPresent % Stimuli are presented left
                 if pp.nDisks>=3
-                    [minSmoothLineWidth, maxSmoothLineWidth, minAliasedLineWidth, maxAliasedLineWidth] = Screen('DrawLines',w,innerStimPos.leftDisk(:,:,iStimPres-nEmptyBefore),pp.barWidthPx,pp.maskColor,[0 0], 1); %  Screen(‘DrawLines’, windowPtr, xy [,width=2] [,colors] [,center] [,smooth=2][,lenient]) % Bars in the Left disk % -nEmptyBefore because iStimPres is already (nEmptyBefore) when the loop is read for the first time; +iStimPres to advance the dot position after every stimulus presentation;
+                    [minSmoothLineWidth, maxSmoothLineWidth, minAliasedLineWidth, maxAliasedLineWidth] = Screen('DrawLines',w,innerStimPos.leftDisk(:,:,iStimPres-nEmptyBefore),pp.barWidthPx,pp.maskColor,[0 0], 1); %  Screen(Â‘DrawLinesÂ’, windowPtr, xy [,width=2] [,colors] [,center] [,smooth=2][,lenient]) % Bars in the Left disk % -nEmptyBefore because iStimPres is already (nEmptyBefore) when the loop is read for the first time; +iStimPres to advance the dot position after every stimulus presentation;
                 end
                 [minSmoothLineWidth, maxSmoothLineWidth, minAliasedLineWidth, maxAliasedLineWidth] = Screen('DrawLines',w,innerStimPos.middleDisk(:,:,iStimPres-nEmptyBefore),pp.barWidthPx,pp.maskColor,[0 0], 1); % Bars in the middle disk
                 if pp.nDisks>=2
