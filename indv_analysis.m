@@ -42,6 +42,19 @@ function indv_analysis(subjID, isSaveFig)
                                                 & ses_dt.nemptybetween == nEmptyBtw(kk)));
             end
         end
+        plot_pc = anal_pc;
+        plot_rt = anal_rt;
+        diff_pc = [];
+        diff_rt = [];
+        % compute difference from baseline 
+        if length(conds)==3
+            for kk = 1:length(nEmptyBtw)
+                diff_pc(kk,:)=anal_pc(kk,1:2) - anal_pc(kk,3);
+                diff_rt(kk,:)=anal_rt(kk,1:2) - anal_rt(kk,3);
+            end
+            plot_pc = diff_pc;
+            plot_rt = diff_rt;
+        end
         
         rr = floor(sqrt(length(nEmptyBtw)));
         cc = ceil(length(nEmptyBtw)/rr);
@@ -49,25 +62,41 @@ function indv_analysis(subjID, isSaveFig)
         
         for kk=1:length(nEmptyBtw)
             subplot(rr,cc*2,2*kk-1);
-            bar(anal_pc(kk,:),0.8)
-            text([1:length(conds)],anal_pc(kk,:)+0.05,strsplit(num2str(anal_pc(kk,:))),'HorizontalAlignment', 'center')
-            title([num2str(nEmptyBtw(kk)) ' empty between: PC'])
-            ylabel('percent correct')
-            ylim([0,1])
-            xticklabels(condNms(conds))
+            bar(plot_pc(kk,:),0.8)
+            text([1:length(plot_pc(kk,:))],plot_pc(kk,:)+0.05,strsplit(num2str(plot_pc(kk,:))),'HorizontalAlignment', 'center')
+            if length(conds)~=3
+                title([num2str(nEmptyBtw(kk)) ' empty between: PC'])
+                ylabel('percent correct')
+                ylim([0,1])
+                xticklabels(condNms(conds))
+            else
+                title([num2str(nEmptyBtw(kk)) ' empty between: PC, Baseline: ' num2str(anal_pc(kk,3))])
+                ylabel('percent correct difference')
+                ylim([-0.2,0.2])
+                xticklabels(condNms(conds(1:2)))
+            end            
             xtickangle(30)
             subplot(rr,cc*2,2*kk);
-            bar(anal_rt(kk,:),0.8)
-            text([1:length(conds)],anal_rt(kk,:)+0.2,strsplit(num2str(anal_rt(kk,:))),'HorizontalAlignment', 'center')
-            title(['RT'])
-            ylabel('reaction time (s)')
-            ylim([0,3])
-            xticklabels(condNms(conds))
+            bar(plot_rt(kk,:),0.8)
+            text([1:length(plot_rt(kk,:))],plot_rt(kk,:)+0.2,strsplit(num2str(plot_rt(kk,:))),'HorizontalAlignment', 'center')
+            if length(conds)~=3
+                title(['RT'])
+                ylabel('reaction time (s)')
+                ylim([0,3])
+                xticklabels(condNms(conds))
+            else
+                title(['RT, Baseline: ' num2str(anal_rt(kk,3))])
+                ylabel('reaction time (s) difference')
+                ylim([-0.5,0.5])
+                xticklabels(condNms(conds(1:2)))
+            end
+            
             xtickangle(30)
         end 
         
         if isSaveFig
             saveas(fig, [data_path filesep ses_unm{ii} '.png'])
+            writetable(ses_dt,[data_path filesep upper(subjID) '_' ses_unm{ii} '.csv'])
         end
     end % end of session_analysis
     
