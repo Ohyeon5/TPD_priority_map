@@ -6,8 +6,8 @@ function TPD_PriorityMap_Run
     param.OBS_DIST = 70;                  % [cm] % Martin's setting
     param.stimElev = 0;                   % [arcmin] (-) upward, (+) downward
     param.isISFix = logical(1);           % fixation dot in isi frame
-    param.stimDursToBeUsedFrms = [6];    % [frames] sci.hz = 60Hz % default 12: 200ms
-    param.isiDursToBeUsedFrms  = [12];    % [frames] sci.hz = 60Hz % default 12: 200ms
+    param.stimDursToBeUsedFrms = [5];     % [frames] sci.hz = 60Hz % default  5:  83ms
+    param.isiDursToBeUsedFrms  = [10];    % [frames] sci.hz = 60Hz % default 10: 167ms
     
     % GUI: get user inputs
     param.subjID = char(upper(inputdlg({'Please enter the subject ID:'}, 'SubjID')));
