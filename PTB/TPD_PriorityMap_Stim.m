@@ -121,7 +121,7 @@ try
     % Screen info
     % Present stimuli on the main screen, where using multiple screens
     screens = Screen('Screens');
-    screenNumber = 1;
+    screenNumber = 0;
     sci = Screen('Resolution',screenNumber,[],[],pp.freqHz); %get screen info
     sci.gamma = 1;             			% set to 1 to load linear gamma table using lpsy.setGammaTab ; %For use with lpsytb function: Scrn.gammaCalibCoeff = mean(str2num(sysInfo.colorcalibration.gamma)); % Desired gamma calibration coefficient 
 	sci.gammaMode = 'grey';   			% if 'grey', lpsy.setGammaTab programs the gamma table with identical values for the R, G, and B channel
