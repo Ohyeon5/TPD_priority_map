@@ -12,7 +12,7 @@ function TPD_PriorityMap_Run
     % GUI: get user inputs
     param.subjID = char(upper(inputdlg({'Please enter the subject ID:'}, 'SubjID')));
     
-    condNm = {'main_1disk_nEmptyBetween', 'main_1disk_isiDuration', ...
+    condNm = {'main_1disk', 'main_2disk','main_3disk', ...
         '1disk_3pos_pilot','2disk_3pos_pilot','3disk_3pos_pilot','3disk_3pos_ret_pilot',...
         '1disk_2pos_pilot','2disk_2pos_pilot','3disk_2pos_pilot','3disk_2pos_ret_pilot','training'};
     condSelect = listdlg('PromptString', 'Which exptype would you like to run?', ...
@@ -27,19 +27,25 @@ function TPD_PriorityMap_Run
     param.nx144 = 3; % total num of trials will be param.nx144 * 144 (default: 3) % should be cleared in this script
     
     switch param.cond
-        case 'main_1disk_nEmptyBetween' 
+        case 'main_1disk' 
             param.nDisks = 1;
-            param.nEmptyBetween = [2,4,6,8];   % the num of empty disks in between cue-probe stim (should be even number)
-            param.isISFix = logical(0);           % fixation dot in isi frame
-            param.stimDursToBeUsedFrms = [6];    % [frames] sci.hz = 60Hz 
-            param.isiDursToBeUsedFrms  = [12];    % [frames] sci.hz = 60Hz 
-            param.condNmPostfix = '_varyingNbetweenEmpties'; % to specify data filename % should be cleared in this script
+            param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
+            param.isISFix = logical(0);  % fixation dot in isi frame
+            param.isNonRet      = 0;     % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
+            param.condNmPostfix = '_1disk'; % to specify data filename % should be cleared in this script
             % param.barColor, param.barWidth, etc ...
-        case 'main_1disk_isiDuration'
-            param.nEmptyBetween = 0;    % the num of empty disks in between cue-probe stim
-            param.stimDursToBeUsedFrms = [12];    % [frames] sci.hz = 60Hz 
-            param.isiDursToBeUsedFrms  = [30];    % [frames] sci.hz = 60Hz 
-            param.condNmPostfix = ['_' num2str(param.isiDursToBeUsedFrms) 'isiFrms']; % to specify data filename % should be cleared in this script
+        case 'main_2disk' 
+            param.nDisks = 2;
+            param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number
+            param.isNonRet      = 0; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
+            param.condNmPostfix = '_2disk'; % to specify data filename % should be cleared in this script
+            % param.barColor, param.barWidth, etc ...
+        case 'main_3disk' 
+            param.nDisks = 3;
+            param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
+            param.isNonRet      = 1; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
+            param.condNmPostfix = '_3disk'; % to specify data filename % should be cleared in this script
+            % param.barColor, param.barWidth, etc ...
         case '1disk_3pos_pilot'            
             param.nDisks = 1;
             param.isISFix = logical(0);           % remove the fix-dot in between frames
@@ -145,90 +151,46 @@ function initialize_params
     end
 	fileListSub = dir(dataPath);    
     
-    switch param.cond
-        case 'main_1disk_nEmptyBetween'
-            nTot = 576*2; % total trials should be factor of 144
-            param.numCal = 144;
-            % Check num of succeeded main sessions and set current session num
-            succeedNum = numel(strfind(strcat(fileListSub.name),['sessionSucceed_' param.cond param.condNmPostfix])); 
+    if any(strfind(lower(param.cond),lower('main')))
+        nTot = 144*param.nx144; % total trials should be factor of 144
+        param.numCal = 144;
+        % Check num of succeeded main sessions and set current session num
+        succeedNum = numel(strfind(strcat(fileListSub.name),['sessionSucceed_' param.cond param.condNmPostfix])); 
 
-            if succeedNum == 0 % if first main session: 14 configurations
-                %counterbalance condition(3), bar_positions (6), nEmpyBetween(4), cue_target_tilt(2), cue_distractor_tilt(2), probe_target_tilt(2) conditions
-                a = fullfact([3 6 4 2 2 2]);                      % condition(3), bar_positions (6), nEmpyBetween(4),cue_target_tilt(2), cue_distractor_tilt(2), probe_target_tilt(2)
-                b = repmat(a, nTot/size(a,1),1);             % replicate the matrix until it has as many rows as there are trials 
-                idx = Shuffle([1:size(b,1)]);                   % create a random index for the rows in b
-                c = b(idx,:);                                   % reorder rows in b according to the random index
-                c(c(:,4) == 2,4) = -1;                          % In columns 4, replace the 2s by -1s so we only have -1s and 1s in c(:,4).  
-                c(c(:,5) == 2,5) = -1;                          % In columns 5, replace the 2s by -1s so we only have -1s and 1s in c(:,5).  
-                c(c(:,6) == 2,6) = -1;                          % In column 6, replace the 2s by -1s so we only have -1s and 1s in c(:,6).  
-                nEmptyBetween = param.nEmptyBetween;
-                param.nEmptyBetween      = nEmptyBetween(c(:,3))'; % number of empty disks in between cue and probe disks
-                param.condition          = c(:,1);              % 1. Suppression(target position == d), 2. Enhancement(target position == p), 3. Baseline(target position == ~d & ~p) conditions
-                param.cue_target_tilt    = c(:,4);              % Cue frame's target tilt orientation -1: left, 1: right
-                param.cue_distractor_tilt= c(:,5);              % Cue frame's distractor tilt orientation -1: left, 1: right
-                param.prob_target_tilt   = c(:,6);              % Probe frame's target tilt orientation -1: left, 1: right
-                param.isNonRet           = zeros(nTot,1);       % the non-ret (1) or ret (0) condition
-                param.distractor_pos     = zeros(nTot,1);       % Cue frame's Distractor position 1/3
-                param.cue_target_pos     = zeros(nTot,1);       % Cue frame's target position 1/2 (except distractor position. It's relative position compared to distractor position. So, the exact position values are specified in the trial sessions.
-                param.prob_target_pos    = zeros(nTot,1);       % Prob frame's target position, it depends on condition and cue frame's distractor & target positions. 
+        if succeedNum == 0 % if first main session: 14 configurations
+            %counterbalance condition(3), bar_positions (6), cue_target_tilt(2), cue_distractor_tilt(2), probe_target_tilt(2) conditions
+            a = fullfact([3 6 2 2 2]);                      % condition(3), bar_positions (6),cue_target_tilt(2), cue_distractor_tilt(2), probe_target_tilt(2)
+            b = repmat(a, nTot/size(a,1),1);             % replicate the matrix until it has as many rows as there are trials 
+            idx = Shuffle([1:size(b,1)]);                   % create a random index for the rows in b
+            c = b(idx,:);                                   % reorder rows in b according to the random index
+            c(c(:,3) == 2,3) = -1;                          % In columns 3:4, replace the 2s by -1s so we only have -1s and 1s in c(:,3:4).  
+            c(c(:,4) == 2,4) = -1;                          % In columns 3:4, replace the 2s by -1s so we only have -1s and 1s in c(:,3:4).  
+            c(c(:,5) == 2,5) = -1;                          % In column 5, replace the 2s by -1s so we only have -1s and 1s in c(:,5).  
+            param.condition          = c(:,1);              % 1. Suppression(target position == d), 2. Enhancement(target position == p), 3. Baseline(target position == ~d & ~p) conditions
+            param.cue_target_tilt    = c(:,3);              % Cue frame's target tilt orientation -1: left, 1: right
+            param.cue_distractor_tilt= c(:,4);              % Cue frame's distractor tilt orientation -1: left, 1: right
+            param.prob_target_tilt   = c(:,5);              % Probe frame's target tilt orientation -1: left, 1: right
+            param.isNonRet           = ones(nTot,1)*param.isNonRet;  % the non-ret (1) or ret (0) condition
+            param.distractor_pos     = zeros(nTot,1);       % Cue frame's Distractor position 1/3
+            param.cue_target_pos     = zeros(nTot,1);       % Cue frame's target position 1/2 (except distractor position. It's relative position compared to distractor position. So, the exact position values are specified in the trial sessions.
+            param.prob_target_pos    = zeros(nTot,1);       % Prob frame's target position, it depends on condition and cue frame's distractor & target positions. 
 
-                % set-up positions relativey
-                bar_comb = [1,2,3;1,3,2;2,1,3;2,3,1;3,1,2;3,2,1];   % combinations of 3 positions
-                bar_positions    = c(:,2);                          % conbination type: 1-6
-                bar_positions    = bar_comb(bar_positions,:);       % trial by trial bar positions
-                param.distractor_pos = bar_positions(:,1);              % cue-distractor position
-                param.cue_target_pos = bar_positions(:,2);              % cue-target position
-                subind = sub2ind(size(bar_positions), [1:nTot], param.condition');
-                param.prob_target_pos= bar_positions(subind');  % prob-target position: depends on the conditions
+            % set-up positions relativey
+            bar_comb = [1,2,3;1,3,2;2,1,3;2,3,1;3,1,2;3,2,1];   % combinations of 3 positions
+            bar_positions    = c(:,2);                          % conbination type: 1-6
+            bar_positions    = bar_comb(bar_positions,:);       % trial by trial bar positions
+            param.distractor_pos = bar_positions(:,1);              % cue-distractor position
+            param.cue_target_pos = bar_positions(:,2);              % cue-target position
+            subind = sub2ind(size(bar_positions), [1:nTot], param.condition');
+            param.prob_target_pos= bar_positions(subind');  % prob-target position: depends on the conditions
 
-                init_succeedTxt(dataPath);
-                clear a b c idx
-            elseif succeedNum % if sessionSucceedNum file exists for current condition
-                readNset_params(dataPath, succeedNum);            
-            end
-            succeedNum = succeedNum+1;        
-            param.saveTxtname = [dataPath filesep param.subjID '_sessionSucceed_' param.cond param.condNmPostfix '_SUCCEED_' num2str(succeedNum) '.txt' ];
-    
-        case 'OLD_settings'
-            nTot = 144*param.nx144; % total trials should be factor of 144
-            param.numCal = 72;
-            % Check num of succeeded main sessions and set current session num
-            succeedNum = numel(strfind(strcat(fileListSub.name),['sessionSucceed_' param.cond param.condNmPostfix])); 
-
-            if succeedNum == 0 % if first main session: 14 configurations
-                %counterbalance condition(3), bar_positions (6), cue_target_tilt(2), cue_distractor_tilt(2), probe_target_tilt(2) conditions
-                a = fullfact([3 6 2 2 2]);                      % condition(3), bar_positions (6),cue_target_tilt(2), cue_distractor_tilt(2), probe_target_tilt(2)
-                b = repmat(a, nTot/size(a,1),1);             % replicate the matrix until it has as many rows as there are trials 
-                idx = Shuffle([1:size(b,1)]);                   % create a random index for the rows in b
-                c = b(idx,:);                                   % reorder rows in b according to the random index
-                c(c(:,3) == 2,3) = -1;                          % In columns 3:4, replace the 2s by -1s so we only have -1s and 1s in c(:,3:4).  
-                c(c(:,4) == 2,4) = -1;                          % In columns 3:4, replace the 2s by -1s so we only have -1s and 1s in c(:,3:4).  
-                c(c(:,5) == 2,5) = -1;                          % In column 5, replace the 2s by -1s so we only have -1s and 1s in c(:,5).  
-                param.condition          = c(:,1);              % 1. Suppression(target position == d), 2. Enhancement(target position == p), 3. Baseline(target position == ~d & ~p) conditions
-                param.cue_target_tilt    = c(:,3);              % Cue frame's target tilt orientation -1: left, 1: right
-                param.cue_distractor_tilt= c(:,4);              % Cue frame's distractor tilt orientation -1: left, 1: right
-                param.prob_target_tilt   = c(:,5);              % Probe frame's target tilt orientation -1: left, 1: right
-                param.isNonRet           = zeros(nTot,1);       % the non-ret (1) or ret (0) condition
-                param.distractor_pos     = zeros(nTot,1);       % Cue frame's Distractor position 1/3
-                param.cue_target_pos     = zeros(nTot,1);       % Cue frame's target position 1/2 (except distractor position. It's relative position compared to distractor position. So, the exact position values are specified in the trial sessions.
-                param.prob_target_pos    = zeros(nTot,1);       % Prob frame's target position, it depends on condition and cue frame's distractor & target positions. 
-
-                % set-up positions relativey
-                bar_comb = [1,2,3;1,3,2;2,1,3;2,3,1;3,1,2;3,2,1];   % combinations of 3 positions
-                bar_positions    = c(:,2);                          % conbination type: 1-6
-                bar_positions    = bar_comb(bar_positions,:);       % trial by trial bar positions
-                param.distractor_pos = bar_positions(:,1);              % cue-distractor position
-                param.cue_target_pos = bar_positions(:,2);              % cue-target position
-                subind = sub2ind(size(bar_positions), [1:nTot], param.condition');
-                param.prob_target_pos= bar_positions(subind');  % prob-target position: depends on the conditions
-
-                init_succeedTxt(dataPath);
-                clear a b c idx
-            elseif succeedNum % if sessionSucceedNum file exists for current condition
-                readNset_params(dataPath, succeedNum);            
-            end
-            succeedNum = succeedNum+1;        
-            param.saveTxtname = [dataPath filesep param.subjID '_sessionSucceed_' param.cond param.condNmPostfix '_SUCCEED_' num2str(succeedNum) '.txt' ];
+            init_succeedTxt(dataPath);
+            clear a b c idx
+        elseif succeedNum % if sessionSucceedNum file exists for current condition
+            readNset_params(dataPath, succeedNum);            
+        end
+        succeedNum = succeedNum+1;        
+        param.saveTxtname = [dataPath filesep param.subjID '_sessionSucceed_' param.cond param.condNmPostfix '_SUCCEED_' num2str(succeedNum) '.txt' ];
     end 
  
     
@@ -245,7 +207,7 @@ end % end of initialize_params()
 function init_succeedTxt(dataPath)
     global param 
     
-    SavedFields = {'condition';'nEmptyBetween';'isNonRet';'cue_target_tilt';'cue_distractor_tilt';...
+    SavedFields = {'condition';'isNonRet';'cue_target_tilt';'cue_distractor_tilt';...
                   'prob_target_tilt';'distractor_pos';'cue_target_pos';'prob_target_pos'};
     % open sessionSucceed.txt file: import txt filename from RUNfile (pp.savetxtname)
     txtid = fopen([dataPath filesep param.subjID '_init_' param.cond param.condNmPostfix '_SucceedTxt.txt'], 'w');
