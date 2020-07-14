@@ -1,0 +1,7 @@
+# Parameter change logs
+
+HISTORY
+- 2020-07-14 (Oh-hyeon Choung)
+	- ISI + StimDuration = 250 ms (15 Frames/60 Hz)
+	- ISI: 10 frames (166.667 ms)  --> based on Marc's Group motion / circular motion experiment
+	- StimDur: 5 frames (83.333 ms)
