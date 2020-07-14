@@ -6,13 +6,13 @@ function TPD_PriorityMap_Run
     param.OBS_DIST = 70;                  % [cm] % Martin's setting
     param.stimElev = 0;                   % [arcmin] (-) upward, (+) downward
     param.isISFix = logical(1);           % fixation dot in isi frame
-    param.stimDursToBeUsedFrms = [5];     % [frames] sci.hz = 60Hz % default  5:  83ms
-    param.isiDursToBeUsedFrms  = [10];    % [frames] sci.hz = 60Hz % default 10: 167ms
+    param.stimDursToBeUsedFrms = [4];     % [frames] sci.hz = 60Hz % default  4:  67ms
+    param.isiDursToBeUsedFrms  = [11];    % [frames] sci.hz = 60Hz % default 11: 183ms
     
     % GUI: get user inputs
     param.subjID = char(upper(inputdlg({'Please enter the subject ID:'}, 'SubjID')));
     
-    condNm = {'main_1disk', 'main_2disk','main_3disk', ...
+    condNm = {'main_1disk', 'main_2disk','main_3disk_nonret', 'main_3disk_ret',...
         '1disk_3pos_pilot','2disk_3pos_pilot','3disk_3pos_pilot','3disk_3pos_ret_pilot',...
         '1disk_2pos_pilot','2disk_2pos_pilot','3disk_2pos_pilot','3disk_2pos_ret_pilot','training'};
     condSelect = listdlg('PromptString', 'Which exptype would you like to run?', ...
@@ -33,19 +33,21 @@ function TPD_PriorityMap_Run
             param.isISFix = logical(0);  % fixation dot in isi frame
             param.isNonRet      = 0;     % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
             param.condNmPostfix = '_1disk'; % to specify data filename % should be cleared in this script
-            % param.barColor, param.barWidth, etc ...
         case 'main_2disk' 
             param.nDisks = 2;
             param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number
             param.isNonRet      = 0; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
             param.condNmPostfix = '_2disk'; % to specify data filename % should be cleared in this script
-            % param.barColor, param.barWidth, etc ...
-        case 'main_3disk' 
+        case 'main_3disk_nonret' 
             param.nDisks = 3;
             param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
             param.isNonRet      = 1; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
-            param.condNmPostfix = '_3disk'; % to specify data filename % should be cleared in this script
-            % param.barColor, param.barWidth, etc ...
+            param.condNmPostfix = '_3disknonret'; % to specify data filename % should be cleared in this script
+        case 'main_3disk_ret' 
+            param.nDisks = 3;
+            param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
+            param.isNonRet      = 0; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
+            param.condNmPostfix = '_3diskret'; % to specify data filename % should be cleared in this script        
         case '1disk_3pos_pilot'            
             param.nDisks = 1;
             param.isISFix = logical(0);           % remove the fix-dot in between frames
