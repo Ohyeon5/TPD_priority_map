@@ -1,0 +1,6 @@
+# gitignore
+
+.git
+/Data
+/pre-exp_discussion
+/PTB/OLD
