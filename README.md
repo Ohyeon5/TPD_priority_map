@@ -9,6 +9,6 @@ indv_analysis.m is a brief analysis file for a quick overview of each individual
 
 All the codes are largely under development, so feel free to contact the author of any reasons!! 
 
+
 To Run the experimental code:
-- From Matlab, move to /PTB folder
-- run TPD_PriorityMap_Run.m
+- run PTB/TPD_PriorityMap_Run.m
