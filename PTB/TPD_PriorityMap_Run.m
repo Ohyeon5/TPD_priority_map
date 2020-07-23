@@ -3,7 +3,7 @@ function TPD_PriorityMap_Run
     rng Shuffle;
     
     param.numCal = 10;
-    param.OBS_DIST = 70;                  % [cm] % Martin's setting
+    param.OBS_DIST = 65;                  % [cm] % Martin's setting
     param.stimElev = 0;                   % [arcmin] (-) upward, (+) downward
     param.isISFix = logical(1);           % fixation dot in isi frame
     param.stimDursToBeUsedFrms = [4];     % [frames] sci.hz = 60Hz % default  4:  67ms
@@ -33,7 +33,7 @@ function TPD_PriorityMap_Run
             param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
             param.isLeftAlways  = 1; % if the disks are always presented on the left (if 1 stationally 3 disk condition / flickerling condition)
             param.isNonRet      = 1; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
-            param.condNmPostfix = '_3disknonret'; % to specify data filename % should be cleared in this script
+            param.condNmPostfix = '_3diskflicker'; % to specify data filename % should be cleared in this script
         case 'main_3disk_nonret' 
             param.nDisks = 3;
             param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
