@@ -12,9 +12,10 @@ function TPD_PriorityMap_Run
     % GUI: get user inputs
     param.subjID = char(upper(inputdlg({'Please enter the subject ID:'}, 'SubjID')));
     
-    condNm = {'main_1disk', 'main_2disk','main_3disk_nonret', 'main_3disk_ret',...
-        '1disk_3pos_pilot','2disk_3pos_pilot','3disk_3pos_pilot','3disk_3pos_ret_pilot',...
-        '1disk_2pos_pilot','2disk_2pos_pilot','3disk_2pos_pilot','3disk_2pos_ret_pilot','training', 'gif_making'};
+    condNm = {'main_3disk_flicker','main_3disk_nonret', 'main_3disk_ret',...
+         'main_1disk', 'main_2disk',...    
+         '1disk_3pos_pilot','2disk_3pos_pilot','3disk_3pos_pilot','3disk_3pos_ret_pilot',...
+         '1disk_2pos_pilot','2disk_2pos_pilot','3disk_2pos_pilot','3disk_2pos_ret_pilot','training', 'gif_making'};
     condSelect = listdlg('PromptString', 'Which exptype would you like to run?', ...
                          'SelectionMode', 'single', 'ListString', ...
                         {condNm{:}});
@@ -27,6 +28,22 @@ function TPD_PriorityMap_Run
     param.nx144 = 3; % total num of trials will be param.nx144 * 144 (default: 3) % should be cleared in this script
     
     switch param.cond
+        case 'main_3disk_flicker' 
+            param.nDisks = 3;
+            param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
+            param.isLeftAlways  = 1; % if the disks are always presented on the left (if 1 stationally 3 disk condition / flickerling condition)
+            param.isNonRet      = 1; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
+            param.condNmPostfix = '_3disknonret'; % to specify data filename % should be cleared in this script
+        case 'main_3disk_nonret' 
+            param.nDisks = 3;
+            param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
+            param.isNonRet      = 1; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
+            param.condNmPostfix = '_3disknonret'; % to specify data filename % should be cleared in this script
+        case 'main_3disk_ret' 
+            param.nDisks = 3;
+            param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
+            param.isNonRet      = 0; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
+            param.condNmPostfix = '_3diskret'; % to specify data filename % should be cleared in this script        
         case 'main_1disk' 
             param.nDisks = 1;
             param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
@@ -38,16 +55,6 @@ function TPD_PriorityMap_Run
             param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number
             param.isNonRet      = 0; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
             param.condNmPostfix = '_2disk'; % to specify data filename % should be cleared in this script
-        case 'main_3disk_nonret' 
-            param.nDisks = 3;
-            param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
-            param.isNonRet      = 1; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
-            param.condNmPostfix = '_3disknonret'; % to specify data filename % should be cleared in this script
-        case 'main_3disk_ret' 
-            param.nDisks = 3;
-            param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
-            param.isNonRet      = 0; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
-            param.condNmPostfix = '_3diskret'; % to specify data filename % should be cleared in this script        
         case '1disk_3pos_pilot'            
             param.nDisks = 1;
             param.isISFix = logical(0);           % remove the fix-dot in between frames
@@ -99,14 +106,15 @@ function TPD_PriorityMap_Run
             param.prob_target_tilt   = (round(rand(param.numCal,1))-0.5)*2;   % Probe frame's target tilt orientation -1: left, 1: right
         case 'gif_making'
             param.numCal = 5;
-            param.nDisks = 1;
+            param.nDisks = 3;
             param.stimDursToBeUsedFrms = [12];    % [frames] sci.hz = 60Hz 
             param.isiDursToBeUsedFrms  = [12];    % [frames] sci.hz = 60Hz
-            param.isISFix = logical(0);  % fixation dot in isi frame
-            param.isNonRet       = zeros(param.numCal,1);
+            param.isISFix = logical(1);  % fixation dot in isi frame
+            param.isLeftAlways  = 1; % if the disks are always presented on the left (if 1 stationally 3 disk condition / flickerling condition)
+            param.isNonRet       = ones(param.numCal,1);
             param.condition      = ones(param.numCal,1);           % 1. Suppression(target position == d), 2. Enhancement(target position == p), 3. Baseline(target position == ~d & ~p) conditions
-            param.distractor_pos = randi(3,param.numCal,1,1);           % Cue frame's Distractor position 1/3
-            param.cue_target_pos = randi(3,param.numCal,1,1);           % Cue frame's target position 1/2 (except distractor position. It's relative position compared to distractor position. So, the exact position values are specified in the trial sessions.
+            param.distractor_pos = randi(2,param.numCal,1,1);           % Cue frame's Distractor position 1/3
+            param.cue_target_pos = 3*ones(param.numCal,1);              % Cue frame's target position 1/2 (except distractor position. It's relative position compared to distractor position. So, the exact position values are specified in the trial sessions.
             param.prob_target_pos= randi(3,param.numCal,1,1); % prob-target position: depends on the conditions
             param.cue_target_tilt    = (round(rand(param.numCal,1))-0.5)*2;    % Cue frame's target tilt orientation -1: left, 1: right
             param.cue_distractor_tilt= (round(rand(param.numCal,1))-0.5)*2;% Cue frame's distractor tilt orientation -1: left, 1: right

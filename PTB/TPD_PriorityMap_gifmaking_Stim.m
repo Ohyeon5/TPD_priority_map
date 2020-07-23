@@ -5,6 +5,10 @@ function [myData] = TPD_PriorityMap_Stim(varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % History 
+% Ver 2.0.gif (2020-07-23)
+%   - 3disk stationaly (flickering condition added)
+%   - parameter: pp.isLeftAlways added
+%   Therefore, getInnerStimPos() function modified to let the bar presented
 % Ver 1.0.gif (2020-07-22)
 %   - GIF making added (search gif_making)
 % Ver 1.0 (2020-03-09)
@@ -26,6 +30,7 @@ pp.addParamValue('saveTxtname', 'test', @ischar);           % save sessionSuccee
 pp.addParamValue('cond', 'Demo', @ischar);                  % condition name
 pp.addParamValue('task', 'priority_map', @ischar);          % task type: 'priority_map' in the moment, more will be included
 pp.addParamValue('nDisks', 3, @isscalar);                   % the number of disks 
+pp.addParamValue('isLeftAlways', 0, @isscalar);             % if the disks are always presented on the left (if 1 stationally 3 disk condition / flickerling condition)
 
 pp.addParamValue('isDebug', 0, @islogical);                 % Is debug mode?
 pp.addParamValue('isSaveData', 1, @islogical);              % Is save data?
@@ -271,7 +276,8 @@ try
                         
             %if stim will be presented left
             if (tt.isLeftStart(iTrial) && mod(iStimPres,2)) ...    
-                    || (~tt.isLeftStart(iTrial) && ~mod(iStimPres,2))               
+                    || (~tt.isLeftStart(iTrial) && ~mod(iStimPres,2)) ...
+                    || (pp.isLeftAlways && pp.nDisks==3) % 3 disk flickering condition                    
                 
                 % if Stim will be presented in left
                 isLeftPresent = 1;
@@ -476,7 +482,7 @@ try
     %% Movie making: Make gif        
     fprintf('Saving to .gif file - Please wait!\n')    
 
-    gifName = sprintf('TPD_priority_map_%s_%idisk_nonret%i.gif', pp.cond, pp.nDisks,pp.isNonRet(1));
+    gifName = sprintf('TPD_priority_map_%s_%idisk_nonret%i_flicker%i.gif', pp.cond, pp.nDisks,pp.isNonRet(1),pp.isLeftAlways);
     
     LoopCount = Inf; %how often is the gif looped
     
@@ -742,7 +748,7 @@ end % end of getStimPos()
 function StimPos = getBarPos(distractor_pos,cue_target_pos,prob_target_pos,cue_target_tilt, cue_distractor_tilt,prob_target_tilt,isNonRet,diskDiaPix,disk_center,disk_gap, nStimPres)
     % Set bar positions per disk, output fields are leftDisk, middleDisk, rightDisk
     % output StimPos: iStimPres x 2 x num_of_bars*2 (matrix configuration: [start end start end ...])
-
+    global pp 
     if nStimPres ~= 2 % for getBarPos() only 2 frame case is implemented in this moment!
        error('Only 2 frame case is implemented in this moment! Please update the code to have more frames')
     end
@@ -778,9 +784,15 @@ function StimPos = getBarPos(distractor_pos,cue_target_pos,prob_target_pos,cue_t
     center_position = repmat(disk_center,[1,4])+[-1.5*disk_gap,-0.5*disk_gap,+0.5*disk_gap,+1.5*disk_gap;0,0,0,0]; % [x1,x2,x3,x4;y1,y2,y3,y4] left, mid-left, mid-right, right xy coordinate 
 
     % Set-up xy coordinates in StimPos.left/middle/right
-    StimPos.leftDisk   = cat(3,center_position(:,2),center_position(:,1));
-    StimPos.middleDisk = cat(3,center_position(:,3),center_position(:,2));
-    StimPos.rightDisk  = cat(3,center_position(:,4),center_position(:,3));
+    if ~pp.isLeftAlways 
+        StimPos.leftDisk   = cat(3,center_position(:,2),center_position(:,1));
+        StimPos.middleDisk = cat(3,center_position(:,3),center_position(:,2));
+        StimPos.rightDisk  = cat(3,center_position(:,4),center_position(:,3));
+    else
+        StimPos.leftDisk   = cat(3,center_position(:,1),center_position(:,1));
+        StimPos.middleDisk = cat(3,center_position(:,2),center_position(:,2));
+        StimPos.rightDisk  = cat(3,center_position(:,3),center_position(:,3));
+    end
 
     if isNonRet
         frame2MidDisk = cue_disk;
