@@ -191,7 +191,7 @@ try
     d.isEtOk = false(pp.numCal,1);    %for retrospective control of fixation during trial after the trial ended
     
     %Eyetracker settings
-	etBaselineSecs = 0.2;       % Amount of data to be saved pre trialstart (can be used for post-hoc drift correction) 
+	pp.etBaselineSecs = 0.2;       % Amount of data to be saved pre trialstart (can be used for post-hoc drift correction) 
 	isOnlineFixCtrl = pp.etOnline;
 
 	%Eyetracker settings for lpsy.etWaitForFixation at trialstart
@@ -210,7 +210,7 @@ try
     %dummy call to initialize the 'FillOval' function (first call is not actually drawn apparently)
     %This is a workaround for a bug in PTB    
     DrawRing.DrawRing(sci.wnd, fxCntr, pp.backgrColor, 2*pp.fxRadPx);
-    
+        
     % Connect to eyetracker 
     isEtConnected = lpsy.etConnect('Device', pp.etDevice, 'Recording', 'local', 'Eye', 'c'); 
     
@@ -321,7 +321,7 @@ try
                 %   correct signal drift later, because the gaze is supposed to be
                 %   always at the central fixation point (which is kind of certain
                 %   since we make sure the trial doesn't start if it is not).
-                lpsy.etRecordTrial(tLstFlip, etBaselineSecs, 'marker', 100+iTrial);
+                lpsy.etRecordTrial(tLstFlip, pp.etBaselineSecs, 'marker', 100+iTrial);
             else %if iStimPres>1 %If this is not the first stim pres of the trial                                
                 if tt.isiDurFrms(iTrial)>0        %if ISI>0ms                    
                     %flip stim to screen after waiting isiDurSecs
@@ -367,9 +367,9 @@ try
         %% Online fixation control                                
         if isOnlineFixCtrl && isEtConnected %~strcmpi(etDevice, 'none')            
             %check if the subject fixated well during the trial                
-            dTrialSecs = pp.stimDurSecs(iTrial)*pp.nStimTot + pp.isiDurSecs(iTrial)*(nStimTot-1); % -1 because the trial starts with a stim onset and ends with a stim offset (ie., there is no ISI after the last disk)            
+            dTrialSecs = tt.stimDurSecs(iTrial)*pp.nStimTot + tt.isiDurSecs(iTrial)*(pp.nStimTot-1); % -1 because the trial starts with a stim onset and ends with a stim offset (ie., there is no ISI after the last disk)            
             fromTi = tLstFlip-dTrialSecs-pp.etBaselineSecs; %from last reference (timestamp of screen cleaning) back by the full trial duration and the duration of the baseline
-            toTi = tLstFlip-pp.stimDurSecs(iTrial)*pp.nEmptyAfter-pp.isiDurSecs(iTrial)*pp.nEmptyAfter;      %don't analyze the recording during the dot-less disks at the end of the trial and the ISI presented before it (analysis ends with the offset of the last disk with dot)
+            toTi = tLstFlip-tt.stimDurSecs(iTrial)*pp.nEmptyAfter-tt.isiDurSecs(iTrial)*pp.nEmptyAfter;      %don't analyze the recording during the dot-less disks at the end of the trial and the ISI presented before it (analysis ends with the offset of the last disk with dot)
             [d.isEtOk(iTrial), isEnufSmps4Anal, isTrialWiLongBadRun, isGoodFxTrial] = ctrlFx(sci.wnd, fromTi, toTi, sci, sysInfo);   
             if isEsc, break, end %if escape was pressed break out of trial loop
         else %if online fixation control is not used or no et is connected
@@ -855,12 +855,11 @@ function [isEtOk, isEnufSmps4Anal, isTrialWiLongBadRun, isGoodFxTrial] = ctrlFx(
 
     %get data from buffer
     [etData, etTimestamps, etInfo] = lpsy.etGetSignal(fromTi, toTi);  %[signal, timestamps, info] = lpsy.etGetSignal(fromTi,toTi);   
-
     %% Settings                                
-    sizeOnePxInM = sysInfo.stimulusmonitor.widthmm_fallback/Scrn.width/1000;  %sizeOnePxInM = 0.2768/1000; %pixel pitch on AsusVG248QE according to manufacturer
-    sizeOnePxInDeg = 2*atand(sizeOnePxInM/ (2*Scrn.vd_m));                     %0.0240 (0.02402950232842317905289130831128) @0.66m (as well)
-    scrnMaxXDeg = Scrn.width/2*sizeOnePxInDeg; %max distance of screen center to screen edge in x direction (arcdeg)
-    scrnMaxYDeg = Scrn.height/2*sizeOnePxInDeg; %max distance of screen center to screen edge in y direction (arcdeg)
+    sizeOnePxInM = 520/1920/1000;  %sizeOnePxInM = 0.2768/1000; %pixel pitch on AsusVG248QE according to manufacturer
+    sizeOnePxInDeg = 2*atand(sizeOnePxInM/ (2*0.65));                     %0.0240 (0.02402950232842317905289130831128) @0.66m (as well)
+    scrnMaxXDeg = 1920/2*sizeOnePxInDeg; %max distance of screen center to screen edge in x direction (arcdeg)
+    scrnMaxYDeg = 1080/2*sizeOnePxInDeg; %max distance of screen center to screen edge in y direction (arcdeg)
 
     etHz = etInfo.sampFreq;
     dSmpMs = 1000/etHz;                     %duration of 1smp in ms      
@@ -994,7 +993,7 @@ function [isEtOk, isEnufSmps4Anal, isTrialWiLongBadRun, isGoodFxTrial] = ctrlFx(
 
         %Wait for a key press, but continue automatically after respTimeoutSecs
         lpsy.releaseKeyWait(); %wait until all buttons are released 
-        [isEsc] = lpsy.getKey(respKeys, 5);                    
+        [isEsc] = lpsy.getKey({'left', 'right'}, 5);                    
         lpsy.flip(w);          %flip to remove message, as visual confirmation to button press
         if isEsc, return, end %if escape was pressed return to invoking function                             
     end                                           
