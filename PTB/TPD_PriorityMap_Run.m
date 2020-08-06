@@ -10,7 +10,7 @@ function TPD_PriorityMap_Run
     param.isiDursToBeUsedFrms  = [11];    % [frames] sci.hz = 60Hz % default 11: 183ms
     
     %Eyetracker settings
-    param.etDevice = 'none';          % Which eyetracker shall be used 'TET', 'SMI', 'GP3', 'none'
+    param.etDevice = 'eyelink';          % Which eyetracker shall be used 'TET', 'SMI', 'GP3', 'eyelink', 'none'
     param.etOnline = true;
     
     % GUI: get user inputs
