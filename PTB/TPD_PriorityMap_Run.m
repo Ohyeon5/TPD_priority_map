@@ -10,7 +10,7 @@ function TPD_PriorityMap_Run
     param.isiDursToBeUsedFrms  = [11];    % [frames] sci.hz = 60Hz % default 11: 183ms
     
     %Eyetracker settings
-    param.etDevice = 'TET';          % Which eyetracker shall be used 'TET', 'SMI', 'GP3', 'eyelink', 'none'
+    param.etDevice = 'none';          % Which eyetracker shall be used 'TET', 'SMI', 'GP3', 'eyelink', 'none'
     param.etOnline = true;
     
     % GUI: get user inputs
@@ -59,13 +59,13 @@ function TPD_PriorityMap_Run
         case 'train_3disk_nonret'
             param.nDisks = 3;
             param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
-            param.isLeftAlways  = 1; 
+            param.isLeftAlways  = 0; 
             param.isNonRet      = 1; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
             init_train_params()
         case 'train_3disk_ret'
             param.nDisks = 3;
             param.nEmptyBetween = [2];   % the num of empty disks in between cue-probe stim (should be even number)
-            param.isLeftAlways  = 1; 
+            param.isLeftAlways  = 0; 
             param.isNonRet      = 0; % the non-ret (1) or ret (0) condition  (transferred to vector in initialize_params())
             init_train_params()
         
@@ -119,6 +119,8 @@ end % end of TPD_PriorityMap_Run()
 function init_train_params()
     global param
     param.numCal = 18;
+    param.isIncorrFeedb = true;
+    param.isNonRet           = ones(param.numCal,1)*param.isNonRet;
     param.cue_target_tilt    = (round(rand(param.numCal,1))-0.5)*2;    % Cue frame's target tilt orientation -1: left, 1: right
     param.cue_distractor_tilt= (round(rand(param.numCal,1))-0.5)*2;% Cue frame's distractor tilt orientation -1: left, 1: right
     param.prob_target_tilt   = (round(rand(param.numCal,1))-0.5)*2;   % Probe frame's target tilt orientation -1: left, 1: right
