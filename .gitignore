@@ -4,6 +4,7 @@
 /Data
 /pre-exp_discussion
 /PTB/OLD
+/Instructions/DUMMIES
 
 # system files 
-/Instructions/Thumbs.db
+*Thumbs.db
