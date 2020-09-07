@@ -1,4 +1,4 @@
-function indv_analysis(subjID, isSaveFig)
+function results = indv_analysis(subjID, isSaveAnal)
     % quick overview of the data, combine all the data from same session
     % and get pc and rt results depends on the conditions
     % usage: ex. indv_analysis('OO', 1) 
@@ -17,6 +17,8 @@ function indv_analysis(subjID, isSaveFig)
             ses_unm{length(ses_unm)+1} = ses_nm{ii};
         end
     end
+    
+    results = [];
     
     % analysis each session
     for ii = 1:length(ses_unm)
@@ -94,10 +96,12 @@ function indv_analysis(subjID, isSaveFig)
             xtickangle(30)
         end 
         
-        if isSaveFig
+        if isSaveAnal
             saveas(fig, [data_path filesep ses_unm{ii} '.png'])
             writetable(ses_dt,[data_path filesep upper(subjID) '_' ses_unm{ii} '.csv'])
         end
+        results(ii).sessNm = ses_unm{ii};
+        results(ii).table  = ses_dt;
     end % end of session_analysis
-    
+    fprintf(['Done: ' subjID])
 end % end of indv_analysis()
