@@ -1,6 +1,7 @@
-% Group analysis for pilot experiment
-
 data_path = ['..' filesep 'Data' filesep 'current' filesep];
+subjIDs = readtable([pwd filesep '..' filesep 'logbook.xlsx']); 
+subjIDs = subjIDs.subjID;
+
 f_list    = dir([data_path filesep '*.csv']);
 temp = readtable([data_path filesep f_list(1).name]);
 nemptybetween = unique(temp.nemptybetween);

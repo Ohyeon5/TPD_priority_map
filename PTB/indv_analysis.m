@@ -5,7 +5,7 @@ function indv_analysis(subjID, isSaveFig)
     %      : Analyze subject 'OO's data and save the bar plot for each session
     
     % get all tested conditions
-    data_path = ['..' filesep 'Data' filesep upper(subjID)];
+    data_path = ['..' filesep 'Data' filesep 'current' filesep upper(subjID)];
     f_list    = dir([data_path filesep upper(subjID) '*.dv']);
     ses_nm    = {};
     % get unique session name
@@ -13,7 +13,7 @@ function indv_analysis(subjID, isSaveFig)
     for ii=1:length(f_list)        
         tempSplit = strsplit(f_list(ii).name,'_');
         ses_nm{ii,1}  = strjoin(tempSplit(3:end-2),'_');
-        if ~ismember(ses_nm{ii},ses_unm)
+        if ~ismember(ses_nm{ii},ses_unm)&&~isempty(ses_nm{ii})&&any(strfind(ses_nm{ii},'main'))
             ses_unm{length(ses_unm)+1} = ses_nm{ii};
         end
     end
@@ -65,12 +65,12 @@ function indv_analysis(subjID, isSaveFig)
             bar(plot_pc(kk,:),0.8)
             text([1:length(plot_pc(kk,:))],plot_pc(kk,:)+0.05,strsplit(num2str(plot_pc(kk,:))),'HorizontalAlignment', 'center')
             if length(conds)~=3
-                title([num2str(nEmptyBtw(kk)) ' empty between: PC'])
+                title([ses_unm{ii} ' condition : PC'])
                 ylabel('percent correct')
                 ylim([0,1])
                 xticklabels(condNms(conds))
             else
-                title([num2str(nEmptyBtw(kk)) ' empty between: PC, Baseline: ' num2str(anal_pc(kk,3))])
+                title([ses_unm{ii} ' condition: PC, Baseline: ' num2str(anal_pc(kk,3))])
                 ylabel('percent correct difference')
                 ylim([-0.2,0.2])
                 xticklabels(condNms(conds(1:2)))
