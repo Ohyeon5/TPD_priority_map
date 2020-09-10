@@ -49,6 +49,7 @@ function group_result = group_analysis(isSaveIndvAnal, isPlot)
         sess_names = fieldnames(group_result);
         % initialize parameters
         condNms= {'Suppression', 'Enhancement', 'Baseline'};
+        colorMaps = [0 0.4470 0.7410;0.8500 0.3250 0.0980;0.9290 0.6940 0.1250];
         nSubj  = length(subjIDs);
         nSess  = length(sess_names);
         nConds = length(condNms);
@@ -79,8 +80,12 @@ function group_result = group_analysis(isSaveIndvAnal, isPlot)
         fig1 = figure('position',[100 100 3*300 2*400]);
         subplot(2,1,1)
         hold on
+        if nSubj>1
         errorbar((repmat([1:nSess],2,1)+[-0.14;0.14])',mean_cond_pe,squeeze(std(cond_pe,1)),'.k')
+        end
         b=bar(mean_cond_pe, 0.8);
+        b(1).FaceColor = colorMaps(1,:);
+        b(2).FaceColor = colorMaps(2,:);
         text([1:nSess]-0.2,mean_cond_pe(:,1)+0.01,strsplit(num2str(mean_cond_pe(:,1)')),'HorizontalAlignment', 'center')
         text([1:nSess]+0.2,mean_cond_pe(:,2)-0.01,strsplit(num2str(mean_cond_pe(:,2)')),'HorizontalAlignment', 'center')
         xticks([1:nSess])
@@ -90,8 +95,12 @@ function group_result = group_analysis(isSaveIndvAnal, isPlot)
         legend(b,condNms{conds})
         subplot(2,1,2)
         hold on
+        if nSubj>1
         errorbar((repmat([1:nSess],2,1)+[-0.14;0.14])',mean_cond_rt,squeeze(std(cond_rt,1)),'.k')
-        b=bar(mean_cond_rt, 0.8)
+        end
+        b=bar(mean_cond_rt, 0.8);
+        b(1).FaceColor = colorMaps(1,:);
+        b(2).FaceColor = colorMaps(2,:);
         text([1:nSess]-0.2,mean_cond_rt(:,1)+0.01,strsplit(num2str(mean_cond_rt(:,1)')),'HorizontalAlignment', 'center')
         text([1:nSess]+0.2,mean_cond_rt(:,2)-0.01,strsplit(num2str(mean_cond_rt(:,2)')),'HorizontalAlignment', 'center')
         xticks([1:nSess])

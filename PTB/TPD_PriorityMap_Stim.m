@@ -31,6 +31,8 @@ pp.addParamValue('task', 'priority_map', @ischar);          % task type: 'priori
 pp.addParamValue('nDisks', 3, @isscalar);                   % the number of disks 
 pp.addParamValue('isLeftAlways', 0, @isscalar);             % if the disks are always presented on the left (if 1 stationally 3 disk condition / flickerling condition)
 
+pp.addParamValue('respKeys', {'left', 'right'}, @iscell);   % keys to listen for responses
+
 pp.addParamValue('isDebug', 0, @islogical);                 % Is debug mode?
 pp.addParamValue('isSaveData', 1, @islogical);              % Is save data?
 pp.addParamValue('isTimeoutFeedb', 0, @islogical);          % Is time out Feedback?
@@ -96,7 +98,6 @@ try
     end
     % some parameter related errors and settings 
     
-    respKeys = {'left', 'right'}; % keys to listen for responses
     % Trial specific parameters 
     fdnms = {'condition';'cue_target_tilt';'cue_distractor_tilt';'prob_target_tilt';'isNonRet';...
              'distractor_pos';'cue_target_pos';'prob_target_pos';};
@@ -339,7 +340,7 @@ try
 
                 %                     %For program testing: stops script until keypress
                 %                     %before stimulus disappears for the ISI
-                %                     lpsy.getKey(respKeys, 999);
+                %                     lpsy.getKey(pp.respKeys, 999);
                 %                     lpsy.releaseKeyWait;
                 %draw fixationpoint 
                 if pp.isISFix
@@ -380,7 +381,7 @@ try
         if d.isEtOk(iTrial) %if fixation was good
             
             %Get response: Wait max. <respTimeoutSecs> for one of the <respKeys> to be pressed
-            [isEsc, keyIdx, t1] = lpsy.getKey(respKeys, pp.respTimeoutSecs);        
+            [isEsc, keyIdx, t1] = lpsy.getKey(pp.respKeys, pp.respTimeoutSecs);        
             if isEsc, break, end %if escape was pressed break out of trial loop 
 
             if keyIdx %if any button was pressed
@@ -993,7 +994,7 @@ function [isEtOk, isEnufSmps4Anal, isTrialWiLongBadRun, isGoodFxTrial] = ctrlFx(
 
         %Wait for a key press, but continue automatically after respTimeoutSecs
         lpsy.releaseKeyWait(); %wait until all buttons are released 
-        [isEsc] = lpsy.getKey({'left', 'right'}, 5);                    
+        [isEsc] = lpsy.getKey(pp.respKeys, 5);                    
         lpsy.flip(w);          %flip to remove message, as visual confirmation to button press
         if isEsc, return, end %if escape was pressed return to invoking function                             
     end                                           

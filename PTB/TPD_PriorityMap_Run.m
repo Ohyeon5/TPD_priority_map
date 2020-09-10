@@ -5,12 +5,15 @@ function TPD_PriorityMap_Run
     param.numCal = 10;
     param.OBS_DIST = 65;                  % [cm] % Martin's setting
     param.stimElev = 0;                   % [arcmin] (-) upward, (+) downward
+    param.backgrColor = [64, 64, 64];     % 8 cd/m2 background color
+    param.respKeys = {'up','down'};       % keys to listen for responses 
+    param.isIncorrFeedb = false;          % in correct feedback
     param.isISFix = logical(1);           % fixation dot in isi frame
     param.stimDursToBeUsedFrms = [4];     % [frames] sci.hz = 60Hz % default  4:  67ms
     param.isiDursToBeUsedFrms  = [11];    % [frames] sci.hz = 60Hz % default 11: 183ms
     
     %Eyetracker settings
-    param.etDevice = 'eyelink';          % Which eyetracker shall be used 'TET', 'SMI', 'GP3', 'eyelink', 'none'
+    param.etDevice = 'none';          % Which eyetracker shall be used 'TET', 'SMI', 'GP3', 'eyelink', 'none'
     param.etOnline = true;
     
     % GUI: get user inputs
@@ -151,7 +154,7 @@ function initialize_params
     
     if any(strfind(lower(param.cond),lower('main')))
         nTot = 144*param.nx144; % total trials should be factor of 144
-        param.numCal = 144;
+        param.numCal = 108;
         % Check num of succeeded main sessions and set current session num
         succeedNum = numel(strfind(strcat(fileListSub.name),['sessionSucceed_' param.cond param.condNmPostfix])); 
 
