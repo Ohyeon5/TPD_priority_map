@@ -47,6 +47,10 @@ function group_result = group_analysis(isSaveIndvAnal, isPlot)
     % plots 
     if isPlot
         sess_names = fieldnames(group_result);
+        sess_names_lab = {};
+        for nn=1:length(sess_names)
+            sess_names_lab{nn} = sess_names{nn}(12:end);
+        end
         % initialize parameters
         condNms= {'Suppression', 'Enhancement', 'Baseline'};
         colorMaps = [0 0.4470 0.7410;0.8500 0.3250 0.0980;0.9290 0.6940 0.1250];
@@ -68,46 +72,10 @@ function group_result = group_analysis(isSaveIndvAnal, isPlot)
             cong_pe(:,sess,:) = reshape(group_result.(sessNm).cong.pc(:,:),nSubj,1,nCongs);
             cong_rt(:,sess,:) = reshape(group_result.(sessNm).cong.rt(:,:),nSubj,1,nCongs);
             
-            cond_pe(:,sess,:) = cond_pe(:,sess,:) - cond_pe(:,sess,3);
-            cond_rt(:,sess,:) = cond_rt(:,sess,:) - cond_rt(:,sess,3);
         end % end to collect values to plot
-        
-        cond_pe(:,:,3) = [];
-        cond_rt(:,:,3) = [];
-        mean_cond_pe = squeeze(mean(cond_pe,1));
-        mean_cond_rt = squeeze(mean(cond_rt,1));
-
-        fig1 = figure('position',[100 100 3*300 2*400]);
-        subplot(2,1,1)
-        hold on
-        if nSubj>1
-        errorbar((repmat([1:nSess],2,1)+[-0.14;0.14])',mean_cond_pe,squeeze(std(cond_pe,1)),'.k')
-        end
-        b=bar(mean_cond_pe, 0.8);
-        b(1).FaceColor = colorMaps(1,:);
-        b(2).FaceColor = colorMaps(2,:);
-        text([1:nSess]-0.2,mean_cond_pe(:,1)+0.01,strsplit(num2str(mean_cond_pe(:,1)')),'HorizontalAlignment', 'center')
-        text([1:nSess]+0.2,mean_cond_pe(:,2)-0.01,strsplit(num2str(mean_cond_pe(:,2)')),'HorizontalAlignment', 'center')
-        xticks([1:nSess])
-        xticklabels(sess_names)
-        ylim([-0.1 0.1])
-        ylabel('Percent Error difference')
-        legend(b,condNms{conds})
-        subplot(2,1,2)
-        hold on
-        if nSubj>1
-        errorbar((repmat([1:nSess],2,1)+[-0.14;0.14])',mean_cond_rt,squeeze(std(cond_rt,1)),'.k')
-        end
-        b=bar(mean_cond_rt, 0.8);
-        b(1).FaceColor = colorMaps(1,:);
-        b(2).FaceColor = colorMaps(2,:);
-        text([1:nSess]-0.2,mean_cond_rt(:,1)+0.01,strsplit(num2str(mean_cond_rt(:,1)')),'HorizontalAlignment', 'center')
-        text([1:nSess]+0.2,mean_cond_rt(:,2)-0.01,strsplit(num2str(mean_cond_rt(:,2)')),'HorizontalAlignment', 'center')
-        xticks([1:nSess])
-        xticklabels(sess_names)
-        ylim([-0.3 0.3])
-        ylabel('Reaction time difference')
-        legend(b,condNms{conds})
+       
+        %%%%%%%%%%%%%%%%
+        fig1 = fc_plot_pe_rt(cond_pe, cond_rt, sess_names_lab, condNms, conds, 'Group');
         saveas(fig1, [data_path filesep 'byCondition.png'])
 
         % per congruency plot            
